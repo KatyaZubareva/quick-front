@@ -1,5 +1,3 @@
-// ServiceStatusBadge.tsx
-
 import React from "react";
 
 interface ServiceStatusBadgeProps {

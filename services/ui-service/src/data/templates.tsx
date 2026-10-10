@@ -1,5 +1,3 @@
-// templates.tsx
-
 import { ProjectTemplate } from "../types/template";
 
 export const TEMPLATES: ProjectTemplate[] = [
@@ -755,7 +753,6 @@ export default {
     }
   },
 
-  // Шаблон для Angular
   {
     id: "angular-app",
     name: "Angular приложение",

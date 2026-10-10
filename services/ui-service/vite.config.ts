@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       plugins: [['@swc/plugin-emotion', {}]]
     }),
     checker({
-      typescript: true,
+      typescript: { tsconfigPath: "tsconfig.app.json" },
       eslint: {
         lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
         useFlatConfig: true,
@@ -45,6 +45,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    base: env.VITE_BASE_PATH || "/",
     plugins,
     css: {
       postcss: {
@@ -101,12 +102,7 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           manualChunks: (id: string) => {
-            if (id.includes('node_modules')) {
-              if (id.includes('react')) return 'vendor-react';
-              if (id.includes('@mui')) return 'vendor-mui';
-              if (id.includes('@emotion')) return 'vendor-emotion';
-              return 'vendor';
-            }
+            if (id.includes('node_modules')) return 'vendor';
           },
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',

@@ -1,4 +1,3 @@
-//tsconfig.node.json
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
@@ -17,8 +16,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "types": ["node"]  // Added for Node.js types
+    "types": ["node"]
   },
   "include": ["vite.config.ts"],
-  "exclude": ["**/dist/**"]  // Added exclusion
+  "exclude": ["**/dist/**"]
 }

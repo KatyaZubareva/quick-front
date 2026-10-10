@@ -1,22 +1,27 @@
-// src/components/DownloadStep.tsx
 import { useState, useEffect } from "react";
 import { Octokit } from "@octokit/rest";
 import { useNavigate } from "react-router-dom";
+import { FiAlertCircle, FiCheck, FiCopy, FiDownload, FiLogOut, FiPackage } from "react-icons/fi";
+import { SiGithub } from "react-icons/si";
+import { Button } from "../../core/Button/Button";
+import StepHeader from "../../core/StepHeader/StepHeader";
 
 interface DownloadStepProps {
   selectedFramework?: string | null;
   selectedVersion?: string | null;
   selectedFeatures?: string[];
   selectedTemplate?: string | null;
+  templateName?: string | null;
   projectName: string;
   projectDescription?: string;
   onBack?: () => void;
 }
 
-const GitHubIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-  </svg>
+const SummaryItem = ({ label, value }: { label: string; value?: string | null }) => (
+  <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+    <p className="text-xs text-zinc-500">{label}</p>
+    <p className={`mt-0.5 truncate text-sm font-medium ${value ? "text-zinc-100" : "text-zinc-600"}`}>{value || "Не выбрано"}</p>
+  </div>
 );
 
 const DownloadStep: React.FC<DownloadStepProps> = ({
@@ -24,6 +29,7 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
   selectedVersion,
   selectedFeatures,
   selectedTemplate,
+  templateName,
   projectName,
   projectDescription,
 }) => {
@@ -39,8 +45,8 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
   const [gitHubUsername, setGitHubUsername] = useState("");
   const [downloadLink, setDownloadLink] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  // Verify GitHub token on mount
   useEffect(() => {
     const token = localStorage.getItem("github_token");
     if (token) {
@@ -48,18 +54,15 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
     }
   }, []);
 
-  // Check for authentication errors from callback
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const errorParam = params.get("error");
     if (errorParam) {
       setError(`GitHub authentication failed: ${errorParam}`);
-      // Clear the error from URL
       navigate(window.location.pathname, { replace: true });
     }
   }, [navigate]);
 
-  // Generate download link when dependencies change
   useEffect(() => {
     if (!selectedFramework) {
       setError("Сначала выберите фреймворк");
@@ -101,7 +104,6 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
   };
 
   const handleGitHubLogin = () => {
-    // Clear any existing token first
     localStorage.removeItem("github_token");
     setIsAuthenticated(false);
     
@@ -164,7 +166,6 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
         throw new Error("Сначала выполните аутентификацию на GitHub");
       }
 
-      // 1. Generate project first
       setGitHubStatus("Генерация проекта...");
       const response = await fetch(`${API_URL}/generate`, {
         method: "POST",
@@ -182,7 +183,6 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
       if (!response.ok) throw new Error("Генерация проекта не удалась");
       const projectData = await response.json();
 
-      // 2. Push to GitHub via GitHub service (port 3002)
       setGitHubStatus("Загрузка в GitHub...");
       const uploadResponse = await fetch(`${GITHUB_API_URL}/api/repos`, {
         method: "POST",
@@ -216,111 +216,138 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
     }
   };
 
-  const copyToClipboard = () => {
-    if (downloadLink) {
-      navigator.clipboard.writeText(downloadLink);
-      alert("📋 Ссылка скопирована в буфер обмена!");
+  const copyToClipboard = async () => {
+    if (!downloadLink) return;
+    try {
+      await navigator.clipboard.writeText(downloadLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (_err) {
+      setError("Не удалось скопировать ссылку");
     }
   };
 
-  return (
-    <div className="text-center p-6 max-w-2xl mx-auto">
-      <h2 className="text-3xl font-bold text-white mb-4">Ваш проект готов!</h2>
-      <p className="text-sm text-center text-gray-400 mb-6">
-        Загрузите свой проект в виде ZIP-файла или отправьте его напрямую на GitHub.
-      </p>
+  const signOutGitHub = () => {
+    localStorage.removeItem("github_token");
+    setIsAuthenticated(false);
+    setGitHubUsername("");
+  };
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-900/50 text-red-200 rounded-lg text-sm">
-          {error}
+  return (
+    <div>
+      <StepHeader
+        eyebrow="Шаг 6"
+        title="Проект готов"
+        description="Проверьте конфигурацию и заберите проект в удобном формате."
+      />
+
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+        <SummaryItem label="Название" value={projectName.trim() || "my-project"} />
+        <SummaryItem
+          label="Фреймворк"
+          value={selectedFramework ? `${selectedFramework}${selectedVersion ? ` ${selectedVersion}` : ""}` : null}
+        />
+        <SummaryItem label="Шаблон" value={templateName ?? selectedTemplate} />
+      </div>
+
+      {!!selectedFeatures?.length && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {selectedFeatures.map((feature) => (
+            <span key={feature} className="chip">
+              {feature}
+            </span>
+          ))}
         </div>
       )}
 
-      {gitHubStatus && (
-        <div className="mb-4 p-3 bg-blue-900/50 text-blue-200 rounded-lg text-sm">
+      {error && (
+        <div className="mt-6 flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <FiAlertCircle className="mt-0.5 shrink-0" />
+          <span className="break-words">{error}</span>
+        </div>
+      )}
+
+      {gitHubStatus && !error && (
+        <div className="mt-6 flex items-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-200">
           {gitHubStatus}
         </div>
       )}
 
-      <div className="relative w-full mb-6">
-        <input
-          type="text"
-          value={downloadLink}
-          readOnly
-          className="px-4 py-3 pr-12 border border-gray-600 rounded-lg w-full text-sm text-gray-300 bg-gray-800 focus:outline-none focus:border-purple-500"
-        />
-        <button
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-2 rounded-lg text-gray-400 hover:text-white transition"
-          onClick={copyToClipboard}
-          title="Копировать ссылку"
-        >
-          📋
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-4 items-center">
-        <button
-          className={`px-6 py-3 rounded-lg font-semibold w-full max-w-xs transition-all flex items-center justify-center gap-2 ${
-            isDownloading
-              ? "bg-gray-600 cursor-not-allowed"
-              : "bg-purple-600 hover:bg-purple-700"
-          }`}
-          onClick={downloadZip}
-          disabled={isDownloading || !downloadLink}
-        >
-          {isDownloading ? (
-            <>
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Generating...
-            </>
-          ) : (
-            "Скачать ZIP"
-          )}
-        </button>
-
-        {!isAuthenticated ? (
-          <button
-            onClick={handleGitHubLogin}
-            className="px-6 py-3 rounded-lg font-semibold w-full max-w-xs bg-gray-800 hover:bg-gray-700 flex items-center justify-center gap-2"
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
+          <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-500/15 text-lg text-brand-300">
+            <FiPackage />
+          </span>
+          <h3 className="font-medium text-white">Скачать архив</h3>
+          <p className="mb-5 mt-1 flex-1 text-[13px] text-zinc-400">ZIP со всеми файлами — распакуйте и запустите npm install.</p>
+          <Button
+            fullWidth
+            icon={<FiDownload />}
+            loading={isDownloading}
+            disabled={!downloadLink}
+            onClick={downloadZip}
           >
-            <GitHubIcon />
-            Загрузить на GitHub
-          </button>
-        ) : (
-          <button
-            onClick={pushToGitHub}
-            className={`px-6 py-3 rounded-lg font-semibold w-full max-w-xs transition-all flex items-center justify-center gap-2 ${
-              isPushingToGitHub
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
-            disabled={isPushingToGitHub || !projectName}
-          >
-            {isPushingToGitHub ? (
+            {isDownloading ? "Генерация..." : "Скачать ZIP"}
+          </Button>
+        </div>
+
+        <div className="flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
+          <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06] text-lg text-white">
+            <SiGithub />
+          </span>
+          <h3 className="font-medium text-white">Отправить на GitHub</h3>
+          <p className="mb-5 mt-1 flex-1 text-[13px] text-zinc-400">
+            {isAuthenticated ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Загрузка...
+                Подключено как <span className="text-zinc-200">@{gitHubUsername}</span>
               </>
             ) : (
-              <>
-                <GitHubIcon />
-                Загрузить на GitHub
-              </>
+              "Создадим репозиторий и загрузим в него код проекта."
             )}
-          </button>
-        )}
+          </p>
+          {isAuthenticated ? (
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                fullWidth
+                icon={<SiGithub />}
+                loading={isPushingToGitHub}
+                disabled={!projectName}
+                onClick={pushToGitHub}
+              >
+                {isPushingToGitHub ? "Загрузка..." : "Создать репозиторий"}
+              </Button>
+              <Button variant="outline" onClick={signOutGitHub} aria-label="Выйти из GitHub" title="Выйти из GitHub">
+                <FiLogOut />
+              </Button>
+            </div>
+          ) : (
+            <Button variant="secondary" fullWidth icon={<SiGithub />} onClick={handleGitHubLogin}>
+              Войти через GitHub
+            </Button>
+          )}
+        </div>
+      </div>
 
-        {isAuthenticated && (
-          <div className="mt-4 text-sm text-gray-400">
-            Connected as <span className="text-blue-400">{gitHubUsername}</span>
-          </div>
-        )}
+      <div className="mt-6">
+        <label className="mb-2 block text-xs font-medium text-zinc-500">Прямая ссылка на архив</label>
+        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/80 p-1.5 pl-4">
+          <input
+            type="text"
+            value={downloadLink}
+            readOnly
+            onFocus={(e) => e.currentTarget.select()}
+            className="min-w-0 flex-1 bg-transparent font-mono text-xs text-zinc-400 focus:outline-none"
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={copyToClipboard}
+            icon={copied ? <FiCheck className="text-emerald-400" /> : <FiCopy />}
+          >
+            {copied ? "Скопировано" : "Копировать"}
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -8,8 +8,8 @@ const GitHubCallback = lazy(() => import("./components/github/GitHubCallback"));
 
 export function App() {
   return (
-    <Router>
-      <Suspense fallback={<div className="flex items-center justify-center w-screen h-screen bg-gray-900">Loading...</div>}>
+    <Router basename={import.meta.env.BASE_URL}>
+      <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-white/10 border-t-brand-500" /></div>}>
         <Routes>
           <Route path="/" element={<WelcomeScreen />} />
           <Route path="/setup" element={<ProjectSetup />} />

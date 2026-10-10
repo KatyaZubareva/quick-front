@@ -1,5 +1,3 @@
-// serviceUtils.ts
-
 export const getServiceStatusColor = (isHealthy: boolean) => {
   return isHealthy ? "bg-green-500" : "bg-red-500";
 };

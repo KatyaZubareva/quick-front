@@ -1,5 +1,3 @@
-// serviceTypes.ts
-
 export interface ServiceHealth {
   name: string;
   isHealthy: boolean;

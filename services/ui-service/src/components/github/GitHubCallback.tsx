@@ -1,6 +1,7 @@
-// src/components/github/GitHubCallback.tsx
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { FiAlertTriangle } from "react-icons/fi";
+import Spinner from "../core/Spinner/Spinner";
 
 interface ProjectFile {
   path: string;
@@ -28,7 +29,6 @@ const GitHubCallback = () => {
       const { name: projectName, files } = getProjectData();
       setStatus("Подготовка файлов проекта...");
 
-      // Changed to port 3002 for GitHub service
       setStatus("Создание репозитория на GitHub...");
       const repoResponse = await fetch("http://localhost:3002/api/repos", {
         method: "POST",
@@ -73,7 +73,6 @@ const GitHubCallback = () => {
 
         setStatus("Обмен кода на токен...");
         
-        // Changed to port 3002 for GitHub auth callback
         const tokenResponse = await fetch("http://localhost:3002/auth/callback", {
           method: "POST",
           headers: {
@@ -119,21 +118,26 @@ const GitHubCallback = () => {
   }, [navigate, location]);
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-900">
-      <div className="text-center">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/15 blur-[120px]" />
+      <div className="surface relative w-full max-w-sm p-8 text-center">
         {!error ? (
           <>
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
-            <p className="text-white">{status}</p>
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.06] text-brand-300">
+              <Spinner className="h-6 w-6" />
+            </div>
+            <p className="font-medium text-white">{status}</p>
             {status.includes("Загрузка") && (
-              <p className="text-gray-400 mt-2">Это может занять некоторое время...</p>
+              <p className="mt-2 text-sm text-zinc-400">Это может занять некоторое время...</p>
             )}
           </>
         ) : (
           <>
-            <div className="text-red-500 text-2xl mb-4">⚠️</div>
-            <p className="text-white">{error}</p>
-            <p className="text-gray-400 mt-2">Перенаправление...</p>
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-xl text-red-400">
+              <FiAlertTriangle />
+            </div>
+            <p className="font-medium text-white">{error}</p>
+            <p className="mt-2 text-sm text-zinc-400">Перенаправление...</p>
           </>
         )}
       </div>

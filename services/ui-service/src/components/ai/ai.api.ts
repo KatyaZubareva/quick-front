@@ -1,4 +1,3 @@
-// services/ui-service/src/components/ai/ai.api.ts
 import axios from "axios";
 
 interface AIRecommendationResponse {

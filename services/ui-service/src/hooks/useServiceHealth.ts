@@ -1,5 +1,3 @@
-// useServiceHealth.ts
-
 import { useEffect, useState } from "react";
 import { ServiceHealth } from "../types/serviceTypes";
 

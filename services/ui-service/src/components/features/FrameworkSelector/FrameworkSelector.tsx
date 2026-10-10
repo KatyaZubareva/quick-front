@@ -1,19 +1,13 @@
-import React, { useState, useRef } from "react";
-import { Button } from "../../core/Button/Button";
+import React from "react";
+import { SiAngular, SiNextdotjs, SiNuxtdotjs, SiReact, SiSvelte, SiVuedotjs } from "react-icons/si";
 import { TEMPLATES } from "../../../data/templates";
+import OptionCard from "../../core/OptionCard/OptionCard";
+import StepHeader from "../../core/StepHeader/StepHeader";
 
 interface Framework {
   versions: string[];
   description: string;
-}
-
-interface TooltipState {
-  visible: boolean;
-  content: {
-    name: string;
-    description: string;
-  } | null;
-  position: { x: number; y: number };
+  icon: React.ReactNode;
 }
 
 interface FrameworkSelectorProps {
@@ -27,29 +21,37 @@ interface FrameworkSelectorProps {
 const frameworks: Record<string, Framework> = {
   React: {
     versions: ["18.0.0", "17.0.0"],
-    description: "Библиотека для создания пользовательских интерфейсов с компонентным подходом.",
+    description: "Библиотека для интерфейсов с компонентным подходом.",
+    icon: <SiReact className="text-[#61DAFB]" />,
   },
   Vue: {
     versions: ["3.2.0", "2.6.0"],
-    description: "Прогрессивный фреймворк для создания интерфейсов с реактивным data-binding.",
+    description: "Прогрессивный фреймворк с реактивным data-binding.",
+    icon: <SiVuedotjs className="text-[#42B883]" />,
   },
   Svelte: {
     versions: ["3.50.0"],
-    description: "Компилируемый фреймворк, который переносит работу в этап сборки.",
+    description: "Компилируемый фреймворк без виртуального DOM.",
+    icon: <SiSvelte className="text-[#FF3E00]" />,
   },
   Angular: {
     versions: ["16.0.0", "15.2.0"],
-    description: "Полноценный фреймворк для корпоративных приложений с TypeScript.",
+    description: "Полноценная платформа для корпоративных приложений.",
+    icon: <SiAngular className="text-[#DD0031]" />,
   },
   "Next.js": {
     versions: ["13.4.0", "12.3.0"],
-    description: "React-фреймворк для серверного рендеринга и статических сайтов.",
+    description: "React-фреймворк с SSR и статической генерацией.",
+    icon: <SiNextdotjs className="text-white" />,
   },
   "Nuxt.js": {
     versions: ["3.1.0", "2.15.8"],
-    description: "Vue-фреймворк для создания универсальных приложений.",
+    description: "Vue-фреймворк для универсальных приложений.",
+    icon: <SiNuxtdotjs className="text-[#00DC82]" />,
   },
 };
+
+const hasTemplates = (framework: string) => TEMPLATES.some((t) => t.frameworks.includes(framework));
 
 const FrameworkSelector: React.FC<FrameworkSelectorProps> = ({
   selectedFramework,
@@ -57,140 +59,58 @@ const FrameworkSelector: React.FC<FrameworkSelectorProps> = ({
   selectedVersion,
   setSelectedVersion,
 }) => {
-  const [tooltip, setTooltip] = useState<TooltipState>({
-    visible: false,
-    content: null,
-    position: { x: 0, y: 0 },
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = (framework: string, e: React.MouseEvent) => {
-    const containerRect = containerRef.current?.getBoundingClientRect();
-    if (!containerRect) return;
-
-    setTooltip({
-      visible: true,
-      content: {
-        name: framework,
-        description: frameworks[framework].description,
-      },
-      position: {
-        x: e.clientX - containerRect.left + 20,
-        y: e.clientY - containerRect.top,
-      },
-    });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!tooltip.visible) return;
-    const containerRect = containerRef.current?.getBoundingClientRect();
-    if (!containerRect) return;
-
-    setTooltip((prev) => ({
-      ...prev,
-      position: {
-        x: e.clientX - containerRect.left + 20,
-        y: e.clientY - containerRect.top,
-      },
-    }));
-  };
-
-  const handleMouseLeave = () => {
-    setTooltip((prev) => ({ ...prev, visible: false }));
-  };
-
-  const hasTemplates = (framework: string) => {
-    return TEMPLATES.some((t) => t.frameworks.includes(framework));
-  };
-
   const handleFrameworkSelect = (framework: string) => {
-    try {
-      setIsLoading(true);
-      setSelectedFramework(framework);
-      setSelectedVersion(frameworks[framework].versions[0]);
-      setError(null);
-    } catch (_err) {
-      setError("Failed to select framework");
-    } finally {
-      setIsLoading(false);
-    }
+    setSelectedFramework(framework);
+    setSelectedVersion(frameworks[framework].versions[0]);
   };
 
   return (
-    <div
-      className="p-6 max-w-4xl mx-auto relative"
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-    >
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-4">Выберите фреймворк</h2>
-        <p className="text-sm text-gray-500 mb-6">
-          Здесь вы можете выбрать технологию, которую хотите использовать для своего проекта, а также
-          указать её версию.
-        </p>
-      </div>
+    <div>
+      <StepHeader
+        eyebrow="Шаг 2"
+        title="Выберите фреймворк"
+        description="От выбора зависят доступные шаблоны и структура сгенерированного проекта."
+      />
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        {Object.keys(frameworks).map((framework) => (
-          <div
-            key={framework}
-            className="relative"
-            onMouseEnter={(e) => handleMouseEnter(framework, e)}
-            onMouseLeave={handleMouseLeave}
-          >
-            <Button
-              label={framework}
-              onClick={() => handleFrameworkSelect(framework)}
-              color="purple"
-              isActive={selectedFramework === framework}
-              isDisabled={!hasTemplates(framework) || isLoading}
-              hint={!hasTemplates(framework) ? "Нет доступных шаблонов" : undefined}
-              ariaLabel={`Выбрать ${framework}`}
-              className="w-full"
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {Object.entries(frameworks).map(([name, framework]) => {
+          const available = hasTemplates(name);
+          return (
+            <OptionCard
+              key={name}
+              title={name}
+              description={framework.description}
+              icon={framework.icon}
+              selected={selectedFramework === name}
+              disabled={!available}
+              badge={available ? undefined : "скоро"}
+              onClick={() => handleFrameworkSelect(name)}
             />
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {selectedFramework && (
-        <div className="flex gap-4 mb-6 flex-wrap">
-          {frameworks[selectedFramework].versions.map((version) => (
-            <Button
-              key={version}
-              label={version}
-              onClick={() => setSelectedVersion(version)}
-              color="purpleDark"
-              isActive={selectedVersion === version}
-              ariaLabel={`Выбрать версию ${version}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {tooltip.visible && tooltip.content && (
-        <div
-          className="absolute z-50 w-64 p-4 bg-gray-800 border border-gray-700 rounded-lg shadow-xl pointer-events-none"
-          style={{
-            left: `${tooltip.position.x}px`,
-            top: `${tooltip.position.y}px`,
-            transform: "translateY(-50%)",
-          }}
-        >
-          <h3 className="text-lg font-semibold text-white mb-1 text-center">
-            {tooltip.content.name}
-          </h3>
-          <p className="text-sm text-gray-300 text-center">
-            {tooltip.content.description}
-          </p>
+        <div className="mt-8 animate-fade-up">
+          <p className="mb-3 text-sm font-medium text-zinc-200">Версия {selectedFramework}</p>
+          <div className="inline-flex flex-wrap gap-1 rounded-xl border border-white/[0.08] bg-zinc-900/80 p-1">
+            {frameworks[selectedFramework].versions.map((version) => {
+              const active = selectedVersion === version;
+              return (
+                <button
+                  key={version}
+                  type="button"
+                  onClick={() => setSelectedVersion(version)}
+                  aria-pressed={active}
+                  className={`rounded-lg px-4 py-1.5 font-mono text-[13px] transition ${
+                    active ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  {version}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

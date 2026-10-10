@@ -1,6 +1,6 @@
-// src/components/ai/AIAssistant.tsx
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { FiArrowUp, FiCpu, FiX } from "react-icons/fi";
 import { AI_API } from "../ai/ai.api";
 
 interface AIAssistantProps {
@@ -120,122 +120,99 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
   };
 
   return (
-    <div className={`flex flex-col h-full bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl ${className}`}>
-      {/* Header */}
-      <div className="p-5 bg-gradient-to-r from-purple-600 to-indigo-600">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white flex items-center">
-            <div className="relative mr-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-800"></div>
-            </div>
-            <span>AI помощник</span>
-          </h2>
+    <div className={`flex max-h-[min(640px,calc(100vh-6rem))] flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/95 shadow-2xl shadow-black/50 backdrop-blur-xl ${className}`}>
+      <div className="flex items-center gap-3 border-b border-white/[0.08] px-4 py-3.5 pr-12">
+        <div className="relative">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-500 text-white">
+            <FiCpu size={16} />
+          </div>
+          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-zinc-950 bg-emerald-400" />
+        </div>
+        <div>
+          <h2 className="text-sm font-semibold text-white">AI помощник</h2>
+          <p className="text-xs text-zinc-500">GigaChat · шаг {currentStep} из 6</p>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 p-5 overflow-y-auto max-h-[400px] space-y-4">
+      <div className="min-h-[240px] flex-1 space-y-3 overflow-y-auto p-4">
         {messages.map((message, index) => (
           <motion.div
             key={`msg-${index}-${message.timestamp?.getTime()}`}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             className={`flex ${message.role === "assistant" ? "justify-start" : "justify-end"}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+              className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
                 message.role === "assistant"
-                  ? "bg-gray-700/60 text-gray-100 rounded-tl-none"
-                  : "bg-indigo-600 text-white rounded-tr-none"
+                  ? "rounded-tl-md border border-white/[0.06] bg-white/[0.04] text-zinc-200"
+                  : "rounded-tr-md bg-brand-500 text-white"
               }`}
               aria-label={`${message.role} message`}
             >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
               {message.timestamp && (
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs opacity-70">
-                    {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                  {message.role === "assistant" && message.modelInfo && (
-                    <p className="text-xs opacity-50">
-                      {message.modelInfo.provider} ({message.modelInfo.model})
-                    </p>
-                  )}
-                </div>
+                <p className={`mt-1 text-[11px] ${message.role === "assistant" ? "text-zinc-500" : "text-white/60"}`}>
+                  {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </p>
               )}
             </div>
           </motion.div>
         ))}
 
         {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-start"
-          >
-            <div className="bg-gray-700/60 text-gray-100 rounded-2xl px-4 py-3 rounded-tl-none max-w-[80%]">
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce"></div>
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "0.4s" }}></div>
-              </div>
+          <div className="flex justify-start">
+            <div className="flex gap-1.5 rounded-2xl rounded-tl-md border border-white/[0.06] bg-white/[0.04] px-4 py-3.5">
+              {[0, 0.15, 0.3].map((delay) => (
+                <span
+                  key={delay}
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400"
+                  style={{ animationDelay: `${delay}s` }}
+                />
+              ))}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-red-400 text-sm p-2 bg-red-900/20 rounded-lg"
-          >
-            {error}
+          <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+            <span className="flex-1">{error}</span>
             <button
+              type="button"
               onClick={() => setError(null)}
-              className="ml-2 text-red-300 hover:text-white"
-              aria-label="Ошибка"
+              className="text-red-300 hover:text-white"
+              aria-label="Скрыть ошибку"
             >
-              ×
+              <FiX />
             </button>
-          </motion.div>
+          </div>
         )}
 
         <div ref={messagesEndRef} aria-hidden="true" />
       </div>
 
-      {/* Input */}
-      <div className="p-4 border-t border-gray-700/50">
-        <form onSubmit={handleSendMessage}>
-          <div className="relative">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl pl-4 pr-12 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent placeholder-gray-400 resize-none"
-              placeholder="Спросите о настройке проекта..."
-              aria-label="Введите ваше сообщение"
-              disabled={isLoading}
-              rows={1}
-              style={{ minHeight: "44px", maxHeight: "120px" }}
-            />
-            <button
-              type="submit"
-              disabled={isLoading || !input.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-purple-400 disabled:opacity-50"
-              aria-label="Отправить сообщение"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
-          </div>
-        </form>
-      </div>
+      <form onSubmit={handleSendMessage} className="border-t border-white/[0.08] p-3">
+        <div className="flex items-end gap-2 rounded-xl border border-white/10 bg-zinc-900/80 p-1.5 pl-3 transition focus-within:border-brand-500/60">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="max-h-[120px] min-h-[36px] flex-1 resize-none bg-transparent py-2 text-sm text-white placeholder-zinc-500 focus:outline-none"
+            placeholder="Спросите о настройке проекта..."
+            aria-label="Введите ваше сообщение"
+            disabled={isLoading}
+            rows={1}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white transition hover:bg-brand-600 disabled:bg-zinc-800 disabled:text-zinc-500"
+            aria-label="Отправить сообщение"
+          >
+            <FiArrowUp />
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
