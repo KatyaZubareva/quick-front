@@ -33,6 +33,7 @@ class GigaChatService {
   private tokenExpiresAt: number = 0;
 
   constructor() {
+    if (!config.GIGACHAT_CLIENT_ID || !config.GIGACHAT_CLIENT_SECRET) return;
     this.authenticate().catch(err => console.error("Initial GigaChat auth failed:", err));
   }
 

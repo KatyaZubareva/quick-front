@@ -59,6 +59,11 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       proxy: {
+        '/api/ai': {
+          target: env.VITE_AI_API_URL || 'http://localhost:3003',
+          changeOrigin: true,
+          secure: false
+        },
         '/api': {
           target: env.VITE_API_URL || 'http://localhost:3001',
           changeOrigin: true,

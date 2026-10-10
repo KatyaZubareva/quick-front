@@ -17,7 +17,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const corsOptions = {
   origin: isProduction 
     ? ['https://your-production-domain.com'] 
-    : ['http://localhost:3002'],
+    : ['http://localhost:5173'],
   credentials: true,
   optionsSuccessStatus: 200
 };

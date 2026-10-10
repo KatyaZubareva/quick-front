@@ -8,6 +8,8 @@ interface TemplateSelectorProps {
   onSelectTemplate: (templateId: string) => void;
   selectedTemplate: string | null;
   templates: ProjectTemplate[];
+  onBack?: () => void;
+  onNext?: () => void;
 }
 
 interface TooltipState {

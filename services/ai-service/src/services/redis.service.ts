@@ -3,7 +3,10 @@ import { createClient } from 'redis';
 import config from '../config';
 
 class RedisService {
-    private client = createClient({ url: config.REDIS_URL });
+    private client = createClient({
+      url: config.REDIS_URL,
+      socket: { reconnectStrategy: (retries) => (retries > 5 ? false : 1000) }
+    });
     private isConnected = false;
   
     constructor() {
@@ -26,10 +29,12 @@ class RedisService {
     }
 
     async cacheResponse(key: string, value: any, ttl: number = config.REDIS_TTL): Promise<void> {
+      if (!this.isConnected) return;
       await this.client.setEx(key, ttl, JSON.stringify(value));
     }
 
     async getCached(key: string): Promise<any | null> {
+      if (!this.isConnected) return null;
       const cached = await this.client.get(key);
       return cached ? JSON.parse(cached) : null;
     }

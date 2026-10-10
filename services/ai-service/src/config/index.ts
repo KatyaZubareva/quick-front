@@ -15,7 +15,7 @@ interface Config {
 
 const config: Config = {
   NODE_ENV: process.env.NODE_ENV || "development",
-  PORT: parseInt(process.env.PORT || "3001"),
+  PORT: parseInt(process.env.PORT || "3003"),
   GIGACHAT_CLIENT_ID: process.env.GIGACHAT_CLIENT_ID,
   GIGACHAT_CLIENT_SECRET: process.env.GIGACHAT_CLIENT_SECRET,
   GIGACHAT_SCOPE: process.env.GIGACHAT_SCOPE || "GIGACHAT_API_PERS",
@@ -26,8 +26,7 @@ const config: Config = {
 
 // Validate required environment variables
 if (!config.GIGACHAT_CLIENT_ID || !config.GIGACHAT_CLIENT_SECRET) {
-  console.error("❌ Missing GigaChat credentials. Please check your .env file.");
-  process.exit(1);
+  console.warn("⚠️ Missing GigaChat credentials. AI queries will fail until they are set in .env.");
 }
 
 export type { Config };

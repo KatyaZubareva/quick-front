@@ -33,7 +33,7 @@ class DownloadController {
       // Set response headers
       res.set({
         'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename=${config.projectName}.zip`,
+        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(config.projectName)}.zip`,
         'Content-Length': zipBuffer.length
       });
 
@@ -43,6 +43,26 @@ class DownloadController {
     } catch (error) {
       console.error('Download error:', error);
       res.status(500).json({ 
+        error: error instanceof Error ? error.message : 'Failed to generate project'
+      });
+    }
+  }
+
+  async generateProject(req: Request, res: Response) {
+    try {
+      const config: ProjectConfig = req.body;
+
+      if (!config?.framework || !config?.projectName) {
+        return res.status(400).json({ error: 'Invalid project configuration' });
+      }
+
+      const generator = new ProjectGenerator();
+      const files = await generator.generate(config);
+
+      res.json({ files });
+    } catch (error) {
+      console.error('Generate error:', error);
+      res.status(500).json({
         error: error instanceof Error ? error.message : 'Failed to generate project'
       });
     }

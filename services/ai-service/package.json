@@ -1,6 +1,5 @@
 {
   "devDependencies": {
-    "@types/axios": "^0.14.4",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.0",

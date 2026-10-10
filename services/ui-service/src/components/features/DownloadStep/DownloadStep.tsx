@@ -76,8 +76,9 @@ const DownloadStep: React.FC<DownloadStepProps> = ({
         template: selectedTemplate || ""
       };
 
-      const encodedParams = btoa(JSON.stringify(config));
-      setDownloadLink(`${API_URL}/download?params=${encodedParams}`);
+      const bytes = new TextEncoder().encode(JSON.stringify(config));
+      const encodedParams = btoa(String.fromCharCode(...bytes));
+      setDownloadLink(`${API_URL}/download?params=${encodeURIComponent(encodedParams)}`);
       setError(null);
     } catch (err) {
       setError("Не удалось создать ссылку для скачивания");
