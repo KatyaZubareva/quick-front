@@ -1,4 +1,3 @@
-//routes/DownloadController.ts
 import { Router } from 'express';
 import DownloadController from '../controllers/downloadController';
 

@@ -1,4 +1,3 @@
-// src/controllers/webhook.controller.ts
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 
@@ -45,13 +44,11 @@ export const handleWebhook = (req: Request, res: Response): Response => {
 const handlePushEvent = (payload: WebhookPayload) => {
   if (payload.repository) {
     console.log('Push event received:', payload.repository.full_name);
-    // Add your push event handling logic here
   }
 };
 
 const handlePullRequestEvent = (payload: WebhookPayload) => {
   if (payload.pull_request) {
     console.log('Pull request event received:', payload.pull_request.html_url);
-    // Add your PR event handling logic here
   }
 };

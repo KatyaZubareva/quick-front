@@ -1,4 +1,3 @@
-// src/services/github.service.ts
 import { Octokit } from 'octokit';
 
 export class GitHubService {
@@ -23,14 +22,12 @@ export class GitHubService {
   async pushFiles(repo: string, files: Array<{ path: string; content: string }>, branch: string = 'main') {
     const [owner, repoName] = repo.split('/');
     
-    // Get reference
     const { data: refData } = await this.octokit.rest.git.getRef({
       owner,
       repo: repoName,
       ref: `heads/${branch}`
     });
 
-    // Create blobs (files)
     const blobs = await Promise.all(
       files.map(file => 
         this.octokit.rest.git.createBlob({
@@ -42,7 +39,6 @@ export class GitHubService {
       )
     );
 
-    // Create tree
     const { data: tree } = await this.octokit.rest.git.createTree({
       owner,
       repo: repoName,
@@ -55,7 +51,6 @@ export class GitHubService {
       base_tree: refData.object.sha
     });
 
-    // Create commit
     const { data: commit } = await this.octokit.rest.git.createCommit({
       owner,
       repo: repoName,
@@ -64,7 +59,6 @@ export class GitHubService {
       parents: [refData.object.sha]
     });
 
-    // Update reference
     await this.octokit.rest.git.updateRef({
       owner,
       repo: repoName,

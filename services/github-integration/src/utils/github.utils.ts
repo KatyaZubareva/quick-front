@@ -1,4 +1,3 @@
-// src/utils/github.utils.ts
 import { Octokit } from "@octokit/rest";
 
 export const validateGitHubToken = async (token: string): Promise<boolean> => {

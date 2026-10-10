@@ -1,4 +1,3 @@
-// src/services/recommender.ts
 interface ProjectContext {
   currentStep: number;
   framework?: string;

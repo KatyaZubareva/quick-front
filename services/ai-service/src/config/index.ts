@@ -1,4 +1,3 @@
-// src/config/index.ts
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -24,7 +23,6 @@ const config: Config = {
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:5173"]
 };
 
-// Validate required environment variables
 if (!config.GIGACHAT_CLIENT_ID || !config.GIGACHAT_CLIENT_SECRET) {
   console.warn("⚠️ Missing GigaChat credentials. AI queries will fail until they are set in .env.");
 }

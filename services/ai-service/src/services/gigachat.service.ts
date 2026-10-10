@@ -1,4 +1,3 @@
-// src/services/gigachat.service.ts
 import axios, { AxiosRequestConfig } from "axios";
 import https from "https";
 import config from "../config";
@@ -21,10 +20,9 @@ interface GigaChatCompletionResponse {
   choices: GigaChatChoice[];
 }
 
-// Create an Axios instance with custom HTTPS agent
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({
-    rejectUnauthorized: false // Bypass SSL certificate validation (for development only)
+    rejectUnauthorized: false
   })
 });
 
@@ -60,7 +58,7 @@ class GigaChatService {
       );
 
       this.accessToken = response.data.access_token;
-      this.tokenExpiresAt = response.data.expires_at * 1000; // Convert to milliseconds
+      this.tokenExpiresAt = response.data.expires_at * 1000;
     } catch (error) {
       console.error("GigaChat authentication error:", error);
       throw error;

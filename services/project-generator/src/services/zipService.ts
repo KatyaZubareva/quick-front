@@ -1,4 +1,3 @@
-//services/ZipService.ts
 import archiver from 'archiver';
 import { PassThrough } from 'stream';
 import { FileContentMap } from '../types';
@@ -7,7 +6,7 @@ class ZipService {
   async createZip(files: FileContentMap): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const archive = archiver('zip', {
-        zlib: { level: 9 } // Maximum compression
+        zlib: { level: 9 }
       });
       
       const stream = new PassThrough();
@@ -19,7 +18,6 @@ class ZipService {
       
       archive.pipe(stream);
       
-      // Add files to the archive
       for (const [filePath, content] of Object.entries(files)) {
         archive.append(content, { name: filePath });
       }

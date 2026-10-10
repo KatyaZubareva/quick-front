@@ -1,4 +1,3 @@
-// src/middlewares/validateAuth.ts
 import { Request, Response, NextFunction } from 'express';
 import { check, validationResult, ValidationError, Result } from 'express-validator';
 

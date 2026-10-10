@@ -1,4 +1,3 @@
-// src/types/config.d.ts
 declare module '../config' {
   const config: {
     NODE_ENV: string;

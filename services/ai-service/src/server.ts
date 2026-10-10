@@ -1,4 +1,3 @@
-// src/server.ts
 import app from "./app";
 import config from "./config";
 import { debugRoutes } from "./utils/debugRoutes";
@@ -10,7 +9,6 @@ const server = app.listen(config.PORT, () => {
   debugRoutes(app);
 });
 
-// Graceful shutdown
 const shutdown = async (signal: string) => {
   console.log(`🛑 Received ${signal}, shutting down...`);
 

@@ -1,4 +1,3 @@
-// src/services/redis.service.ts
 import { createClient } from 'redis';
 import config from '../config';
 

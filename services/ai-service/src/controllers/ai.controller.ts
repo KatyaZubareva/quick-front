@@ -1,4 +1,3 @@
-// src/controllers/ai.controller.ts
 import { Router, Request, Response, NextFunction } from "express";
 import { gigaChat } from "../services/gigachat.service";
 import asyncHandler from "express-async-handler";

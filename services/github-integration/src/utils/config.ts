@@ -1,4 +1,3 @@
-// src/utils/config.ts
 export const validateConfig = () => {
     const requiredVars = [
       'GITHUB_CLIENT_ID',

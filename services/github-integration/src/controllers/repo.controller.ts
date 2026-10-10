@@ -1,4 +1,3 @@
-// src/controllers/repo.controller.ts
 import { Request, Response } from 'express';
 import { GitHubService } from '../services/github.service';
 

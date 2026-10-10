@@ -1,4 +1,3 @@
-//types/index.ts
 export interface ProjectConfig {
     projectName: string;
     projectDescription: string;

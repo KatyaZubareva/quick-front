@@ -1,4 +1,3 @@
-//services/projectGenerator.ts
 import { FileContentMap, ProjectConfig } from '../types';
 
 interface PackageDependencies {
@@ -9,7 +8,6 @@ class ProjectGenerator {
   async generate(config: ProjectConfig): Promise<FileContentMap> {
     const files: FileContentMap = {};
 
-    // 1. Core Project Files
     files['package.json'] = this.generatePackageJson(config);
     files['vite.config.js'] = this.generateViteConfig(config);
     files['.gitignore'] = 'node_modules\n.env\n.DS_Store\n';
@@ -17,7 +15,6 @@ class ProjectGenerator {
     files['src/App.jsx'] = this.generateAppJsx(config);
     files['src/index.css'] = this.generateIndexCss(config);
 
-    // 2. Feature Implementations
     if (config.features?.includes('Dark Mode')) {
       files['src/hooks/useDarkMode.js'] = this.generateDarkModeHook();
       files['src/components/DarkModeToggle.jsx'] = this.generateDarkModeToggle();
@@ -55,7 +52,6 @@ class ProjectGenerator {
     return files;
   }
 
-  // ===== CORE FILE GENERATORS =====
   private generatePackageJson(config: ProjectConfig): string {
     const baseDeps: PackageDependencies = {
       "react": "^18.2.0",
@@ -67,7 +63,6 @@ class ProjectGenerator {
       "@vitejs/plugin-react": "^3.0.0"
     };
 
-    // Feature-specific dependencies
     if (config.features?.includes('Dark Mode')) {
       baseDeps["tailwindcss"] = "^3.0.0";
     }
@@ -180,7 +175,6 @@ export default function App() {
     `;
   }
 
-  // ===== FEATURE GENERATORS =====
   private generateDarkModeHook(): string {
     return `
 import { useState, useEffect } from 'react'
